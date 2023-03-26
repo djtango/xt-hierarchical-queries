@@ -1,0 +1,4 @@
+{:deps {com.xtdb/xtdb-core {:mvn/version "1.23.1"}
+        com.xtdb/xtdb-rocksdb {:mvn/version "1.23.1"}
+        org.clojure/data.csv {:mvn/version "1.0.1"}}
+ :paths ["src"]}
