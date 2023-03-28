@@ -331,3 +331,47 @@
                 ret]]]}))
 ;; (with-subq)
 ;; #{[[{:age 50, :job nil, :key "B", :name "Bob", :parent "A"} {:age 25, :job ["youtuber"], :key "C", :name "Charlie", :parent "B"}]]}
+
+
+(defn with-subq-shadowing []
+  (xt/q
+    (xt/db xtdb-node)
+    '{:find [out]
+      :where [(walk-tree "A" h [] out)]
+      :rules [[(walk-tree f h path out)
+               [j :tree/parent f]
+               [j :tree/key h]
+               [j :tree/leaf? true]
+               (build-record h data)
+               [(conj path data) out]]
+              [(get-job-if-available fk job)
+               [(q {:find [job fk]
+                    :keys [job fk]
+                    :where [[xxx :c/key fk]
+                            [xxx :c/job job]]
+                    :in [fk]}
+                   fk)
+                [job]]]
+              [(walk-tree f h path out)
+               [j :tree/parent f]
+               [j :tree/key more]
+               [j :tree/leaf? false]
+               (build-record more data)
+               [(conj path data) path1]
+               (walk-tree more h path1 out)]
+              [(build-record fk ret)
+               [e :a/key fk]
+               [e :a/name name]
+               [eb :b/key fk]
+               [eb :b/age age]
+               [t :tree/key fk]
+               [t :tree/parent p]
+               (get-job-if-available fk job)
+               [(hash-map :key fk
+                          :parent p
+                          :name name
+                          :age age
+                          :job job)
+                ret]]]}))
+;; (with-subq-shadowing)
+;; #{[[{:age 50, :job nil, :key "B", :name "Bob", :parent "A"} {:age 25, :job {:h "C", :job21568 "youtuber"}, :key "C", :name "Charlie", :parent "B"}]]}
